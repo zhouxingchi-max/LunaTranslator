@@ -60,6 +60,19 @@
             padding: 2px;
             font-size: 12px;
             white-space: pre-wrap;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .ocr-result.comic-mode {
+            border: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6px;
         }
 
         #status {
@@ -97,27 +110,43 @@
         <input type="file" id="file-input" accept="image/*">
     </div>
     <script>
-        function showall() {
-            if (document.getElementById('showall').checked) {
-                document.querySelectorAll('.ocr-result-text').forEach(ele => {
-                    ele.style.display = 'block';
-                })
-                document.querySelectorAll('.ocr-result').forEach(ele => {
-                    ele.style.background = 'white'
-                })
-            }
-            else {
-                document.querySelectorAll('.ocr-result-text').forEach(ele => {
-                    ele.style.display = 'none';
-                })
-                document.querySelectorAll('.ocr-result').forEach(ele => {
-                    ele.style.background = ''
-                })
-            }
+        function fitTextToBox(textNode, containerNode, maxFontSize) {
+            const minFontSize = 8;
+            let fontSize = maxFontSize;
+            textNode.style.fontSize = fontSize + 'px';
 
+            while (fontSize > minFontSize) {
+                if (
+                    textNode.scrollWidth <= containerNode.clientWidth &&
+                    textNode.scrollHeight <= containerNode.clientHeight
+                ) {
+                    break;
+                }
+                fontSize -= 1;
+                textNode.style.fontSize = fontSize + 'px';
+            }
+        }
+
+        function showall() {
+            const comicMode = document.getElementById('comic-mode').checked;
+            const showAll = document.getElementById('showall').checked;
+            document.querySelectorAll('.ocr-result-text').forEach(ele => {
+                ele.style.display = (showAll || comicMode) ? 'block' : 'none';
+            })
+            document.querySelectorAll('.ocr-result').forEach(ele => {
+                if (comicMode) {
+                    ele.classList.add('comic-mode');
+                    return;
+                }
+                ele.classList.remove('comic-mode');
+                ele.style.background = showAll ? 'white' : '';
+            })
         }
     </script>
     <div>显示全部结果<input type="checkbox" id="showall" onclick="showall()">
+        &emsp; &emsp; &emsp; &emsp;
+        <label for="comic-mode">漫画翻译模式</label>
+        <input type="checkbox" id="comic-mode" checked onclick="showall()">
         &emsp; &emsp; &emsp; &emsp;
         <label for="native-spinbox">字体</label>
         <input type="number" id="native-spinbox" min="0" max="100" step="1">
@@ -133,6 +162,7 @@
             window.localStorage.startvalue = e.target.value
             document.querySelectorAll('.ocr-result-text').forEach(ele => {
                 ele.style.fontSize = e.target.value + 'px'
+                fitTextToBox(ele, ele.parentElement, Number(e.target.value))
             })
         });
     </script>
@@ -275,7 +305,7 @@
                     internaltext.className += ' vertical'
                 }
                 resultDiv.addEventListener('mouseout', () => {
-                    if (document.getElementById('showall').checked)
+                    if (document.getElementById('showall').checked || document.getElementById('comic-mode').checked)
                         return
                     internaltext.style.display = 'none';
                     resultDiv.style.background = ''
@@ -295,6 +325,7 @@
                 resultDiv.style.height = `${height}px`;
 
                 previewContainer.appendChild(resultDiv);
+                fitTextToBox(internaltext, resultDiv, Number(document.getElementById('native-spinbox').value));
 
             });
             showall()
