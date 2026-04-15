@@ -35,6 +35,14 @@ jobs:
             build/signed/LunaTranslator_x86_win7.zip
             build/signed/LunaTranslator_x64_win7.zip
             build/signed/LunaTranslator_x64_win10.zip
+            build/signed_exedlls/LunaTranslator_x86_winxp/LunaTranslator.exe
+            build/signed_exedlls/LunaTranslator_x86_winxp/LunaTranslator_admin.exe
+            build/signed_exedlls/LunaTranslator_x86_win7/LunaTranslator.exe
+            build/signed_exedlls/LunaTranslator_x86_win7/LunaTranslator_admin.exe
+            build/signed_exedlls/LunaTranslator_x64_win7/LunaTranslator.exe
+            build/signed_exedlls/LunaTranslator_x64_win7/LunaTranslator_admin.exe
+            build/signed_exedlls/LunaTranslator_x64_win10/LunaTranslator.exe
+            build/signed_exedlls/LunaTranslator_x64_win10/LunaTranslator_admin.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: curl http://lunatranslator.org/${{ secrets.LUNA_UPDATE_NOTIFY }}
